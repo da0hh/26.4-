@@ -1,0 +1,174 @@
+#include <iostream>
+#include <vector>
+#include <cassert>
+#include <string>
+#include <ctime>
+#include <iomanip>
+
+using namespace std;
+
+class Track {
+	std::string name = "";
+	std::tm date{};
+	int duration = 0;
+
+public:
+
+	void setName(string songName) {
+		name = songName;
+	}
+
+	void setDate(tm songDate) {
+		date = songDate;
+	}
+
+	void setDuration(int songDuration) {
+		duration = songDuration;
+	}
+
+	string getName() const
+	{
+		return name;
+	}
+	
+	tm getDate() const
+	{
+		return date;
+	}
+
+	int getDuration() const
+	{
+		return duration;
+	}
+
+	void showInfo() const
+	{
+		int minutes = duration / 60;
+		int seconds = duration % 60;
+		std::cout << "Title: " << name << "\nRealese date: " << put_time(&date, "%d.%m.%Y") << "\nDuration: " << minutes << ":" << seconds << "\n" << std::endl;
+	}
+};
+
+
+class Player {
+private:
+	std::vector<Track> tracks;
+	Track* currentTrack = nullptr;
+	bool isPlaying = false;
+	bool isPaused = false;
+
+public:
+	void addTrack(const Track& track)
+	{
+		tracks.push_back(track);
+		std::cout << "----------\nAdded track: ";
+		track.showInfo();
+		cout < "----------\n";
+	}
+
+	void play()
+	{
+		if (isPlaying)
+			return;
+
+		if (currentTrack == nullptr)
+		{
+			currentTrack = &tracks[std::rand() % tracks.size()];
+		}
+		isPlaying = true;
+		std::cout << "Playing: ";
+		currentTrack->showInfo();
+	}
+
+	void pause()
+	{
+		if (!isPlaying)
+			return;
+		if (isPaused)
+			return;
+
+		assert(currentTrack != nullptr);
+
+		isPaused = true;
+		std::cout << "Pausing: ";
+		currentTrack->showInfo();
+	}
+
+	void stop()
+	{
+		if (!isPlaying)
+			return;
+		assert(currentTrack != nullptr);
+		isPlaying = false;
+		isPaused = false;
+		std::cout << "Stopped: ";
+		currentTrack->showInfo();
+		currentTrack = nullptr;
+	}
+
+	void next()
+	{
+		currentTrack = &tracks[std::rand() % tracks.size()];
+		std::cout << "Moving next: ";
+		currentTrack->showInfo();
+		if (isPlaying)
+		{
+			std::cout << "Playing: ";
+			currentTrack->showInfo();
+		}
+	}
+};
+
+int main() {
+	setlocale(LC_ALL, "RU");
+	Player player;
+
+	while (true)
+	{
+		std::string title;
+		std::tm date{};
+		int duration;
+		cout << "Enter name of song or None to skip step\n";
+		std::cout << "Enter title: ";
+		std::cin >> title;
+		if (title == "None")
+			break;
+		cout << "Enter releasing date: ";
+		std::cin >> std::get_time(&date, "%d.%m.%Y");
+		cout << "Enter duration: ";  std::cin >> duration;
+
+		Track track;
+		track.setName(title);
+		track.setDate(date);
+		track.setDuration(duration);
+
+		player.addTrack(track);
+	}
+
+	while (true)
+	{
+		std::string command;
+		std::cout << "Command:";
+		std::cin >> command;
+		if (command == "play")
+		{
+			player.play();
+		}
+		else if (command == "pause")
+		{
+			player.pause();
+		}
+		else if (command == "stop")
+		{
+			player.stop();
+		}
+		else if (command == "next")
+		{
+			player.next();
+		}
+		else if (command == "exit")
+		{
+			return 0;
+		}
+	}
+}
