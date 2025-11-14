@@ -1,0 +1,176 @@
+#include <iostream>
+#include <vector>
+#include <cassert>
+#include <string>
+#include <ctime>
+#include <iomanip>
+
+using namespace std;
+
+class Contact {
+	string name;
+	long long number = 0;
+
+public:
+	long long getNumber() const {return number;}
+
+	string getName() const {return name;}
+
+	void setName(string nameContact) {name = nameContact;}
+
+	void setNumber(long long num) {number = num;}
+
+	void showInfo()
+	{
+		cout << "Name: " << Contact::name << ", phone number: +7" << Contact::number << endl;
+	}
+};
+
+class PhoneBook {
+	vector<Contact > contacts;
+
+public:
+	void addContact(const Contact& contact) {
+		contacts.push_back(contact);
+	}
+
+	bool callNumber(long long number) {
+		for (size_t i = 0; i < contacts.size(); i++) {
+			if (contacts[i].getNumber() == number) {
+				cout << "Calling number\n";
+				contacts[i].showInfo();
+				return true;
+			}
+		}
+		cout << "Contact with number +7" << number << " not found.\n";
+		return false;
+	}
+
+	bool callName(const string& name) {
+		for (size_t i = 0; i < contacts.size(); i++) {
+			if (contacts[i].getName() == name) {
+				cout << "Calling number\n";
+				contacts[i].showInfo();
+				return true;
+			}
+		}
+		cout << "Contact with name " << name << " not found.\n";
+		return false;
+	}
+
+	bool sendMessageName(const string& name)
+	{
+		for (size_t i = 0; i < contacts.size(); i++) {
+			if (contacts[i].getName() == name) {
+				cout << "Message sent to " << contacts[i].getName() << endl;
+				return true;
+			}
+		}
+		cout << "Contact with name " << name << " not found.\n";
+		return false;
+	}
+
+	bool sendMessageNumber(long long number)
+	{
+		for (size_t i = 0; i < contacts.size(); i++) {
+			if (contacts[i].getNumber() == number) {
+				cout << "Message sent to " << contacts[i].getName() << endl;
+				return true;
+			}
+		}
+		cout << "Contact with number +7" << number << " not found.\n";
+		return false;
+	}
+
+	bool validNumber(long long number) {
+		if (number <= 0) return false;
+
+		int check = 0;
+		while (number > 0) {
+			number /= 10;
+			check++;
+		}
+		return (check == 10);
+	}
+};
+
+
+
+int main() {
+	setlocale(LC_ALL, "RU");
+	PhoneBook  phoneBook;
+	string command;
+
+	while (true) {
+		cout << "Enter command (add | sms | call | exit): ";
+		cin >> command;
+
+		if (command == "add") {
+			string name;
+			long long number;
+			
+			cout << "Enter contact name: "; cin >> name;
+			cout << "Enter contact phone number: +7 "; cin >> number;
+
+			if (!phoneBook.validNumber(number)) {
+				cout << "Number must include exactly 10 digits\n";
+				continue;
+			}
+
+			Contact  contact;
+			contact.setName(name);
+			contact.setNumber(number);
+			phoneBook.addContact(contact);
+
+			cout << "Succesfully added\n";
+			contact.showInfo();
+		}
+		else if (command == "call") {
+			string name, operation;
+
+			cout << "Enter how do you want call contact (Name | Number): "; cin >> operation;
+			if (operation == "Number") {
+				long long number;
+				cout << "Enter phone number: +7"; cin >> number;
+
+				phoneBook.callNumber(number);
+			}
+			else if (operation == "Name") {
+				cout << "Enter contact name: "; cin >> name;
+				phoneBook.callName(name);
+			}
+			else {
+				cout << "Invalid option. Use 'Name' or 'Number'.\n";
+				continue;
+			}
+		}
+		else if (command == "sms") {
+			string name, operation;
+
+			cout << "Enter name or phone number (Name | Number): "; cin >> operation;
+			if (operation == "Number") {
+				long long number;
+				cout << "Enter phone number: +7"; cin >> number;
+
+				phoneBook.sendMessageNumber(number);
+			}
+			else if (operation == "Name") {
+				cout << "Enter contact name: "; cin >> name;
+				phoneBook.sendMessageName(name);
+			}
+			else {
+				cout << "Invalid option. Use 'Name' or 'Number'.\n";
+				continue;
+			}
+		}
+		else if (command == "exit") {
+			break;
+		}
+		else {
+			cout << "Invalid command. Allowed only 'add' | 'call' | 'sms' | 'exit'\n";
+			continue;
+		}
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	}
+}
